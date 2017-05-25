@@ -62,7 +62,6 @@
     frame = CGRectInset(frame, 20, 0);
     CGRectDivide(frame, &temp, &frame, 20, CGRectMaxYEdge);
     CGRectDivide(frame, &frame, &temp, size.height, CGRectMaxYEdge);
-    NSLog(@"%@ get content size : %@ frame : %@",NSStringFromSelector(_cmd),NSStringFromCGSize(size),NSStringFromCGRect(frame));
     return frame;
 }
 
@@ -70,8 +69,6 @@
 {
     [super containerViewWillLayoutSubviews];
     
-//    NSLog(@"layout subviews");
-//    
     self.dimmingView.frame = self.containerView.bounds;
     self.presentedView.frame = [self frameOfPresentedViewInContainerView];
 }
@@ -79,15 +76,6 @@
 - (void) preferredContentSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container
 {
     [super preferredContentSizeDidChangeForChildContentContainer:container];
-//    if (container == self.presentedViewController &&
-//        !self.presentedViewController.isBeingPresented &&
-//        !self.presentedViewController.isBeingDismissed) {
-//        NSLog(@"child content preferred contentSize did change");
-//        CGRect frame = [self frameOfPresentedViewInContainerView];
-//        [UIView animateWithDuration:0.3 animations:^{
-//            self.presentedView.frame = frame;
-//        }];
-//    }
 }
 
 #pragma mark - tap action
