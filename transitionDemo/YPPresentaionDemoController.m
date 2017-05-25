@@ -59,7 +59,8 @@
     CGSize size = [presented preferredContentSize];
     CGRect frame = self.containerView.bounds;
     CGRect temp = CGRectZero;
-//    CGRectDivide(frame, &temp, &frame, 40, CGRectMaxYEdge);
+    frame = CGRectInset(frame, 20, 0);
+    CGRectDivide(frame, &temp, &frame, 20, CGRectMaxYEdge);
     CGRectDivide(frame, &frame, &temp, size.height, CGRectMaxYEdge);
     NSLog(@"%@ get content size : %@ frame : %@",NSStringFromSelector(_cmd),NSStringFromCGSize(size),NSStringFromCGRect(frame));
     return frame;
@@ -178,42 +179,33 @@
     CGRect targetFrame = containerView.bounds;
     targetFrame.size = containerTargetFrame.size;
     
-    CGRect fromBeginFrame,fromEndFrame;
-    CGRect toBeginFrame,toEndFrame;
+    CGAffineTransform transform = CGAffineTransformMakeTranslation(layoutWidth, 0);
     
-    if (isPush) {
-        fromBeginFrame = containerView.bounds;
-        fromEndFrame = targetFrame;
-        toBeginFrame = CGRectOffset(fromBeginFrame, layoutWidth, 0);
-        toEndFrame = fromEndFrame;
-    } else {
-        fromBeginFrame = containerView.bounds;
-        toBeginFrame = fromBeginFrame;
-        toEndFrame = targetFrame;
-        fromEndFrame = CGRectOffset(toEndFrame, layoutWidth, 0);
-    }
+    from.view.frame = containerView.bounds;
+    to.view.frame = containerView.bounds;
     
-    NSLog(@"container view bounds : %@",NSStringFromCGRect(containerView.bounds));
-    NSLog(@"from %@ -> %@",NSStringFromCGRect(fromBeginFrame),NSStringFromCGRect(fromEndFrame));
-    NSLog(@"to %@ -> %@",NSStringFromCGRect(toBeginFrame),NSStringFromCGRect(toEndFrame));
-    
-    from.view.frame = fromBeginFrame;
-    to.view.frame = toBeginFrame;
-    
+    to.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     if (isPush) {
         [containerView addSubview:to.view];
+        to.view.transform = transform;
     } else {
         [containerView insertSubview:to.view belowSubview:from.view];
     }
     
     [UIView animateWithDuration:[self transitionDuration:transitionContext]
                      animations:^{
-                         from.view.frame = fromEndFrame;
-                         to.view.frame = toEndFrame;
+                         if (isPush) {
+                             to.view.transform = CGAffineTransformIdentity;
+                         } else {
+                             from.view.transform = transform;
+                         }
                          parentController.presentationController.presentedView.frame = containerTargetFrame;
                      } completion:^(BOOL finished) {
-//                         from.view.frame = fromBeginFrame;
+                         from.view.transform = CGAffineTransformIdentity;
+                         to.view.transform   = CGAffineTransformIdentity;
                          [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
+                         [to.view setNeedsLayout];
+                         [to.view layoutIfNeeded];
                      }];
 }
 
@@ -243,7 +235,8 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor whiteColor];
-//    self.view.clipsToBounds = YES;
+    self.view.clipsToBounds = YES;
+    self.view.layer.cornerRadius = 8;
     self.interactivePopGestureRecognizer.enabled = NO;
     self.delegate = self;
 }

@@ -25,7 +25,7 @@
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
         _layoutHeight = height;
-        self.title = @"Test";
+        self.title = [NSString stringWithFormat:@"layout height %.0lf",_layoutHeight];
     }
     
     return self;
@@ -62,13 +62,14 @@
 {
     [super viewDidLayoutSubviews];
     
-    CGRect bounds = self.view.bounds;
-    
     NSString *text = [NSString stringWithFormat:@"navigation : %@\nview : %@",NSStringFromCGRect(self.navigationController.view.bounds),NSStringFromCGRect(self.view.frame)];
     self.detailLabel.text = text;
     
     [_detailLabel sizeToFit];
-    _detailLabel.center = CGPointMake(bounds.size.width / 2, 200);
+    CGRect frame = self.detailLabel.frame;
+    frame.origin = CGPointMake(0, self.topLayoutGuide.length);
+    NSLog(@"label frame : %@",NSStringFromCGRect(frame));
+    self.detailLabel.frame = frame;
 }
 
 - (CGSize) preferredContentSize
